@@ -433,6 +433,18 @@ export default {
     }
   },
   methods: {
+    isNumber: function(evt) {
+      evt = (evt) ? evt : window.event;
+      var charCode = (evt.which) ? evt.which : evt.keyCode;
+      if(charCode === 43 && this.phone.includes('+')){
+        evt.preventDefault();
+      }
+      if ((charCode > 31 && (charCode < 48 || charCode > 57)) && charCode !== 43) {
+        evt.preventDefault();
+      } else {
+        return true;
+      }
+    },
     initializeCountry() {
       return new Promise((resolve) => {
         /**
@@ -486,7 +498,7 @@ export default {
         .filter(Boolean);
     },
     findCountry(iso = '') {
-      return this.allCountries.find(country => country.iso2 === iso.toUpperCase());
+      return this.allCountries.find(country => country.id === iso);
     },
     getItemClass(index, iso2) {
       const highlighted = this.selectedIndex === index;
@@ -508,7 +520,7 @@ export default {
     },
     testCharacters() {
       const re = /^[()-+0-9\s]*$/;
-      return re.test(this.phone);
+      return re.test(this.phone) && (this.phone.match(/\+/g) || []).length <= 1;
     },
     onInput() {
       if (this.validCharactersOnly && !this.testCharacters()) {

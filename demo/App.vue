@@ -10,6 +10,7 @@
         <vue-tel-input
           :preferred-countries="['us', 'gb', 'ua']"
           :valid-characters-only="true"
+          :defaultCountry="200"
           @input="onInput"/>
       </div>
       <div
