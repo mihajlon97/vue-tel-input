@@ -3,9 +3,9 @@
     <template v-if="!showPlayground">
       <a href="https://www.npmjs.com/package/vue-tel-input"><img src="https://img.shields.io/npm/dt/vue-tel-input.svg"></a>
       <a href="https://github.com/EducationLink/vue-tel-input"><img src="https://img.shields.io/github/stars/EducationLink/vue-tel-input.svg"></a>
-      <h2 style="color: #999">made with &#x2764; by some <a
+      <h2 style="color: #999">forked from guy with &#x2764; <a
         style="color: inherit"
-        href="https://github.com/EducationLink/vue-tel-input/graphs/contributors">awesome humans</a>.</h2>
+        href="https://github.com/mihajlon97">Mihajlo</a>.</h2>
       <div style="width: 500px; margin: 20px auto;">
         <vue-tel-input
           :preferred-countries="['us', 'gb', 'ua']"
