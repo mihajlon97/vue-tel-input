@@ -11,6 +11,9 @@
           :preferred-countries="['us', 'gb', 'ua']"
           :valid-characters-only="true"
           :defaultCountry="200"
+          :input-options="{ showDialCode: true }"
+          :search-countries="true"
+          :search-placeholder="'Search Countries'"
           @input="onInput"/>
       </div>
       <div

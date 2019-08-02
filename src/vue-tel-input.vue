@@ -26,6 +26,7 @@
       <ul
         v-show="open"
         ref="list">
+	      <input v-if="this.searchCountries" style="height: 30px; padding-left: 20px;" type="text" ref="search" @focus="searchFocused = true" @blur="searchFocused = false" v-model="search" :placeholder="this.searchPlaceholder">
         <li
           v-for="(pb, index) in sortedCountries"
           :key="pb.iso2 + (pb.preferred ? '-preferred' : '')"
@@ -234,9 +235,9 @@ export default {
       default: () => allCountries,
     },
     defaultCountry: {
-      // Default country code, ie: 'AU'
+      // Default country id, ie: 200 for Serbia
       // Will override the current country of user
-      type: String,
+      type: Number,
       default: '',
     },
     enabledCountryCode: {
@@ -295,12 +296,22 @@ export default {
       type: Boolean,
       default: false,
     },
+    searchCountries: {
+      type: Boolean,
+      default: false,
+    },
+    searchPlaceholder: {
+      type: String,
+      default: 'Search...',
+    },
   },
   data() {
     return {
       phone: '',
+      search: '',
       activeCountry: { iso2: '' },
       open: false,
+      searchFocused: false,
       selectedIndex: null,
       typeToFindInput: '',
       typeToFindTimer: null,
@@ -337,7 +348,10 @@ export default {
       const preferredCountries = this.getCountries(this.preferredCountries)
         .map(country => ({ ...country, preferred: true }));
 
-      return [...preferredCountries, ...this.filteredCountries];
+      if (this.search === '')
+        return [...preferredCountries, ...this.filteredCountries];
+      else
+        return [...preferredCountries, ...this.filteredCountries].filter(c => c.name.toLowerCase().indexOf(this.search.toLowerCase()) !== -1 || c.dialCode.toLowerCase().indexOf(this.search.toLowerCase()) !== -1);
     },
     formattedResult() {
       // Calculate phone number based on mode
@@ -400,6 +414,9 @@ export default {
       // Emit open and close events
       if (isDropdownOpened) {
         this.$emit('open');
+        setTimeout(() => {
+          this.$refs.search.focus();
+        }, 500)
       } else {
         this.$emit('close');
       }
@@ -414,13 +431,16 @@ export default {
         this.$emit('country-changed', value);
       }
     },
+    search(newValue){
+
+    }
   },
   mounted() {
     this.initializeCountry().then(() => {
       if (!this.phone
           && this.inputOptions
           && this.inputOptions.showDialCode
-          && this.activeCountry) {
+          && this.activeCountry && this.placeholder === '') {
         this.phone = `+${this.activeCountry.dialCode}`;
       }
       this.$emit('validate', this.response);
@@ -433,18 +453,6 @@ export default {
     }
   },
   methods: {
-    isNumber: function(evt) {
-      evt = (evt) ? evt : window.event;
-      var charCode = (evt.which) ? evt.which : evt.keyCode;
-      if(charCode === 43 && this.phone.includes('+')){
-        evt.preventDefault();
-      }
-      if ((charCode > 31 && (charCode < 48 || charCode > 57)) && charCode !== 43) {
-        evt.preventDefault();
-      } else {
-        return true;
-      }
-    },
     initializeCountry() {
       return new Promise((resolve) => {
         /**
@@ -517,6 +525,7 @@ export default {
       }
       this.$emit('input', this.response.number, this.response);
       this.$emit('onInput', this.response); // Deprecated
+      this.$refs.input.focus();
     },
     testCharacters() {
       const re = /^[()-+0-9\s]*$/;
@@ -550,6 +559,9 @@ export default {
     },
     toggleDropdown() {
       if (this.disabled) {
+        return;
+      }
+      if (this.searchFocused) {
         return;
       }
       this.open = !this.open;
