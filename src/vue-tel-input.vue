@@ -23,11 +23,13 @@
           <span class="dropdown-arrow">{{ open ? "▲" : "▼" }}</span>
         </slot>
       </span>
-      <ul
+	    <span v-if="open && this.searchCountries" style="max-width: 360px; border-bottom: 0px solid #ccc; z-index: 1; background-color: #f2f1f1; position:absolute; top: 30px; height: 30px; width: 80vw;">
+		    <input style="padding-left: 20px;" type="text" ref="search" @focus="searchFocused = true" @blur="searchFocused = false" v-model="search" :placeholder="this.searchPlaceholder">
+	    </span>
+	    <ul
         v-show="open"
         ref="list">
-	      <input v-if="this.searchCountries" style="height: 30px; padding-left: 20px;" type="text" ref="search" @focus="searchFocused = true" @blur="searchFocused = false" v-model="search" :placeholder="this.searchPlaceholder">
-        <li
+	    <li
           v-for="(pb, index) in sortedCountries"
           :key="pb.iso2 + (pb.preferred ? '-preferred' : '')"
           :class="getItemClass(index, pb.iso2)"
@@ -82,6 +84,7 @@ li.last-preferred {
   margin-right: 5px;
 }
 .selection {
+	margin-top: 5px;
 	cursor: pointer;
 	font-size: .8em;
 	display: -webkit-box;
@@ -126,10 +129,11 @@ ul {
 	max-width: 360px;
 	overflow-y: scroll;
 	position: absolute;
-	top: 33px;
+	top: 50px;
 	left: -1px;
 	background-color: #f2f1f1;
 	border: 1px solid #ccc;
+	border-top: 0px solid #ccc;
 	width: 80vw;
 	z-index: 9999;
 }
@@ -369,9 +373,6 @@ export default {
       if (this.phone[0] === '+') {
         return 'code';
       }
-      if (this.phone[0] === '0') {
-        return 'prefix';
-      }
       return 'normal';
     },
     filteredCountries() {
@@ -395,7 +396,8 @@ export default {
       if (this.search === '')
         return [...preferredCountries, ...this.filteredCountries];
       else
-        return [...preferredCountries, ...this.filteredCountries].filter(c => c.name.toLowerCase().indexOf(this.search.toLowerCase()) !== -1 || c.dialCode.toLowerCase().indexOf(this.search.toLowerCase()) !== -1);
+        return [...preferredCountries, ...this.filteredCountries]
+          .filter(c => c.name.toLowerCase().indexOf(this.search.toLowerCase()) !== -1 || c.dialCode.toLowerCase().indexOf(this.search.toLowerCase()) !== -1);
     },
     formattedResult() {
       // Calculate phone number based on mode
@@ -474,9 +476,6 @@ export default {
       if (value && value.iso2) {
         this.$emit('country-changed', value);
       }
-    },
-    search(newValue){
-
     }
   },
   mounted() {
@@ -514,7 +513,7 @@ export default {
          * 2. Use default country if passed from parent
          */
         if (this.defaultCountry) {
-          const defaultCountry = this.findCountry(this.defaultCountry);
+          const defaultCountry = this.findCountry(this.defaultCountry, true);
           if (defaultCountry) {
             this.activeCountry = defaultCountry;
             resolve();
@@ -549,8 +548,8 @@ export default {
         .map(countryCode => this.findCountry(countryCode))
         .filter(Boolean);
     },
-    findCountry(iso = '') {
-      return this.allCountries.find(country => country.id === iso);
+    findCountry(iso = '', findById = false) {
+      return (!findById) ? this.allCountries.find(country => country.iso2 === iso.toUpperCase()) : this.allCountries.find(country => country.id === iso);
     },
     getItemClass(index, iso2) {
       const highlighted = this.selectedIndex === index;
