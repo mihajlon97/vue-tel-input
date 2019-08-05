@@ -549,7 +549,7 @@ export default {
         .filter(Boolean);
     },
     findCountry(iso = '', findById = false) {
-      return (!findById) ? this.allCountries.find(country => country.iso2 === iso.toUpperCase()) : this.allCountries.find(country => country.id === iso);
+      return (!findById) ? this.allCountries.find(country => country.iso2 === iso.toUpperCase()) : this.allCountries.find(country => country.id == iso);
     },
     getItemClass(index, iso2) {
       const highlighted = this.selectedIndex === index;
